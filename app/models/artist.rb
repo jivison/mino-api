@@ -1,6 +1,9 @@
 class Artist < ApplicationRecord
+
+    # Associations
     # ArtistMaps allow the user to essentially set multiple names for a single Artist
     has_many :artist_maps, dependent: :destroy
+    has_many :albums, dependent: :destroy
 
     # Callbacks (in order)
     after_initialize :set_default_image_url
