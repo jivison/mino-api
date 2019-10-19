@@ -14,6 +14,6 @@ Rails.application.routes.draw do
     resources :formattings, only: [:create, :destroy]
   end
 
-  resources :additions, only: [:index, :show, :destroy]
+  resources :additions, only: [:create, :index, :show, :destroy]
 
 end

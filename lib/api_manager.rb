@@ -38,7 +38,6 @@ module ApiManager
   end
 
   def self.get_album_from_trackname(trackname, artist)
-    # puts "Getting album for #{artist} - #{trackname}"
     response = self.spotify.search_track(trackname, artist)
     if response["tracks"]["total"] > 0
       response["tracks"]["items"][0]["album"]["name"]

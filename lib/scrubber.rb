@@ -46,9 +46,7 @@ module Scrub
     song_array = []
 
       ApiManager.youtube.get_playlist_items(50, playlist_id).each do |id| 
-          # puts "Getting video details for #{id}"
           video_details = ApiManager.youtube.get_title_and_channel_name(id)
-          # puts "Processing '#{video_details}'"
           song_array << {title: video_details["title"], artist: video_details["channelTitle"]} if video_details
       end
 

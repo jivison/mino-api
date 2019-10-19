@@ -95,16 +95,14 @@ module SeedManager
         track = song[:track]
         
         # Youtube Videos don't have an album, so we have to find one ourself
-        album = ApiManager.get_album_from_trackname track, artist
+        album = ApiManager.get_album_from_trackname(track, artist)
         
-        data[artist] ||= []
-        data[album] ||= []
+        data[artist] ||= {}
+        data[artist][album] ||= []
     
         data[artist][album] << track
 
     end
-
-    puts data
 
     self.seed_from_linked_hash(data, addition, format)
 
@@ -124,7 +122,7 @@ module SeedManager
             # Attempt to create an album
             Album.create(
                 title: album,
-                artist_id: ArtistMap.find_by(input: artist).output,
+                artist_id: ArtistMap.find_by(input: artist).artist_id,
                 image_url: ApiManager.get_album_art(album, artist),
             )
 
@@ -132,8 +130,11 @@ module SeedManager
                 
                 # Whether or not the above creations succeded, check the maps for
                 # The artist/album id
-                artist_map = ArtistMap.find(input: artist)
-                album_map = AlbumMap.find(input: album, scope: artist_map.id)
+                artist_map = ArtistMap.find_by(input: artist)
+                album_map = AlbumMap.find_by(input: album, scope: artist_map.artist_id)
+
+                created_artist = Artist.find(artist_map.artist_id)
+                created_album = Album.find(album_map.album_id)
 
                 created_track = Track.create(
                     artist_id: artist_map.artist_id,
@@ -141,7 +142,10 @@ module SeedManager
                     title: track
                 )
                 Formatting.create(
-                    track_id: created_track.id,
+                    track_id: Track.find_by({
+                      artist_id: created_artist.id,
+                      album_id: created_album.id
+                      }).id,
                     format_id: format.id,
                     addition_id: addition.id
                 )
@@ -161,17 +165,20 @@ module SeedManager
     #   }
     # }
 
-    data = Hash.new(Hash.new([]))
+    data = {}
 
     api_response[:response]["items"].each do |item|
 
       # Pull the artists, album, and track from each item
       artists = item["track"]["artists"]
-      album = item["track"]["album"]
-      track = item["track"]
+      album = item["track"]["album"]["name"]
+      track = item["track"]["name"]
 
       # Join the multiple artists
       artists_name = item["track"]["artists"].map { |artist| artist["name"] }.join(", ")
+
+      data[artists_name] ||= {}
+      data[artists_name][album] ||= []
 
       data[artists_name][album] << track
     end
@@ -181,6 +188,3 @@ module SeedManager
   end
 
 end
-
-
-SeedManager.seed_from_youtube("PLAV1qP_iCfWmv8rq9JVj_I0BZtqDJdmZo")

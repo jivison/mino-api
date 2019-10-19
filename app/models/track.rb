@@ -1,8 +1,8 @@
 class Track < ApplicationRecord
 
   # Callbacks (in order)
+  before_validation :stop_duplicates
   before_save :use_album_maps
-  before_save :stop_duplicates
 
   # Associations
   belongs_to :album
@@ -25,7 +25,9 @@ class Track < ApplicationRecord
   end
 
   def stop_duplicates
-    # Nothing yet...
+    if persisted_track = Track.find_by(album_id: self.album.id, title: self.title)
+      false
+    end 
   end
 
 end
