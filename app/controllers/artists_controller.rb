@@ -2,7 +2,7 @@ class ArtistsController < ApplicationController
     before_action :find_artist, only: [:show, :destroy, :update, :merge]
 
     def index
-        render_entities(Artist.all)
+        render_entities(Artist..sort_by(:sort_title))
     end
     
     def show
@@ -31,8 +31,8 @@ class ArtistsController < ApplicationController
 
     private
     def find_artist
-        @artist = Artist.find_by(id: params[:id]) 
-        @artist ||= Artist.find(params[:artist_id])
+        @artist = Artist.find_by(id: params[:artist_id])
+        @artist ||= Artist.find_by(params[:id]) 
     end
 
     def artist_params

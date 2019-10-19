@@ -58,8 +58,6 @@ class Artist < ApplicationRecord
                     end
 
                 else
-                    
-                    byebug
 
                     track.artist = target_artist
                     track.save
@@ -78,6 +76,14 @@ class Artist < ApplicationRecord
 
         self.delete
 
+    end
+
+    def sort_title
+        self.title.gsub(/the /i, "").upcase.gsub(/“”"'/, "").gsub(/\W/, "*").gsub(/[0-9]/, "#")
+    end
+
+    def formats
+        self.tracks.collect(&:formattings).flatten.collect(&:format).pluck(&:name)
     end
 
     private

@@ -13,4 +13,8 @@ class ApplicationRecord < ActiveRecord::Base
     self.all.sample
   end
 
+  def self.sort_by(column_name)
+    self.all.sort_by { |entity| entity.send(column_name) }
+  end
+
 end

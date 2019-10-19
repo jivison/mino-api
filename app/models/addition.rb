@@ -12,4 +12,16 @@ class Addition < ApplicationRecord
         end
     end
 
+    def is_unassociated?
+        self.title == "unassociated_add"
+    end
+
+    def humanized_type
+        self.addition_type.humanize
+    end
+
+    def humanized_date
+        ActionController::Base.helpers.time_ago_in_words(self.created_at)
+    end
+
 end

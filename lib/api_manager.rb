@@ -1,7 +1,6 @@
 
 # Requiring the api modules
 require_relative "apis/last_fm_wrapper"
-require_relative "apis/musicbrainz_wrapper"
 require_relative "apis/discogs_wrapper"
 require_relative "apis/spotify_wrapper"
 require_relative "apis/youtube_wrapper"
@@ -12,17 +11,12 @@ module ApiManager
 
   # Create the api objects
   LASTFM = LastFM::LastFmWrapper.new
-  MUSICBRAINZ = Musicbrainz::MusicbrainzWrapper.new
   DISCOGS = Discogs::DiscogsWrapper.new
   SPOTIFY = Spotify::SpotifyWrapper.new
   YOUTUBE = Youtube::YoutubeWrapper.new
 
   def self.last_fm
     LASTFM
-  end
-
-  def self.musicbrainz
-    MUSICBRAINZ
   end
 
   def self.discogs

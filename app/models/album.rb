@@ -25,8 +25,27 @@ class Album < ApplicationRecord
 
   def merge(target_album)
     self.tracks.each do |track|
-      track.album = target_album
-      track.save
+
+      persisted_track = target_album.tracks.find_by(title: track.title)
+
+      if persisted_track
+
+        track.formattings.each do |formatting|
+          Formatting.create(
+              track: persisted_track,
+              format: formatting.format,
+              addition: formatting.addition
+          )
+          formatting.destroy
+        end
+
+        track.delete
+
+      else
+        track.album = target_album
+        track.save
+      end
+
     end
 
     self.album_maps.each do |album_map|
@@ -36,6 +55,14 @@ class Album < ApplicationRecord
 
     self.destroy
 
+  end
+
+  def sort_title
+    self.title.gsub(/the /i, "").upcase.gsub(/“”"'/, "").gsub(/\W/, "*").gsub(/[0-9]/, "#")
+  end
+
+  def formats
+    self.tracks.collect(&:formattings).flatten.collect(&:format).pluck(&:name)
   end
 
   private

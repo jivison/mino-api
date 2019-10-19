@@ -4,6 +4,14 @@ class ApplicationController < ActionController::API
         string.gsub(/ +/, " ").gsub(/\&/, "and").parameterize.unicode_normalize
     end
 
+    def render_errors(errors, status = 422)
+        render json: { errors: errors }, status: status
+    end
+
+    def render_success(message, status = 200)
+        render json: { message: message }, status: status
+    end
+
     def render_entities(entities)
         render json: entities, status: 200
     end
@@ -16,7 +24,7 @@ class ApplicationController < ActionController::API
         if entity.save
             render json: entity, status: 201
         else
-            render json: {errors: entity.errors}, status: 422
+            render_errors(entity.errors)
         end
     end
 
@@ -24,7 +32,7 @@ class ApplicationController < ActionController::API
         if entity.update params
             render json: entity, status: 200
         else
-            render json: {errors: entity.errors}, status: 422
+            render_errors(entity.errors)
         end
     end
 
