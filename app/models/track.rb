@@ -7,9 +7,12 @@ class Track < ApplicationRecord
   # Associations
   belongs_to :album
   belongs_to :artist
-  
+
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
+  
+  has_many :formattings, dependent: :destroy
+  has_many :formats, through: :formattings
 
   # Validations
   validates :title, presence: true, uniqueness: { scope: :album_id }
