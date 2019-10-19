@@ -3,6 +3,9 @@ Rails.application.routes.draw do
 
   resources :artists
   resources :albums
+  resources :tracks, only: [:create, :update, :destroy] do
+    post '/move', to: "tracks#move"
+  end
 
   resources :artist_maps, only: [:index, :create, :destroy]
   resources :album_maps, only: [:index, :create, :destroy]
