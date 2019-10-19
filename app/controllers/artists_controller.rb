@@ -2,11 +2,11 @@ class ArtistsController < ApplicationController
     before_action :find_artist, only: [:show, :destroy, :update]
 
     def index
-        render json: Artist.all, status: 200
+        render_entities(Artist.all)
     end
     
     def show
-        render json: @artist, status: 200
+        render_entity(@artist)
     end
 
     def create

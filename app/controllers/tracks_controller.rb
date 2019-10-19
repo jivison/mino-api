@@ -1,6 +1,10 @@
 class TracksController < ApplicationController
 
-    before_action :find_track, only: [:update, :destroy, :move]
+    before_action :find_track, only: [:update, :destroy, :move, :show]
+
+    def show
+        render_entity(@track)
+    end
 
     def create
         track = Track.new track_params
@@ -23,7 +27,7 @@ class TracksController < ApplicationController
 
     private
     def find_track
-        @track = Track.find_by(id: params[:id])
+        @track = Track.find_by(id: params[:id]) 
         @track ||= Track.find(params[:track_id])
     end
 
