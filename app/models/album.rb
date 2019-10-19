@@ -23,6 +23,21 @@ class Album < ApplicationRecord
     end
   end
 
+  def merge(target_album)
+    self.tracks.each do |track|
+      track.album = target_album
+      track.save
+    end
+
+    self.album_maps.each do |album_map|
+        album_map.album = target_album
+        album_map.save
+    end
+
+    self.destroy
+
+  end
+
   private
   def set_default_image_url
     self.image_url ||= "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu4oc-oZdWxQV9--CBYadMyrQEKXd7-CSBsNdsN7L8KPCJD1Dt"

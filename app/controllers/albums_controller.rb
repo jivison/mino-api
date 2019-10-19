@@ -1,6 +1,6 @@
 class AlbumsController < ApplicationController
 
-    before_action :find_album, only: [:show, :destroy, :update]
+    before_action :find_album, only: [:show, :destroy, :update, :merge, :move]
 
     def index
         render_entities(Album.all)
@@ -23,6 +23,21 @@ class AlbumsController < ApplicationController
 
     def destroy
         destroy_and_render(@album)
+    end
+
+    def merge
+        target_album = Album.find(params[:target_id])
+        @album.merge(target_album)
+        render_entity(target_album)
+    end
+
+    def move
+        target_artist = Artist.find(params[:target_id])
+        @album.artist_maps.each do |album_map|
+            album_map.update scope: target_artist.id
+        end
+        @album.artist = target_artist
+        save_and_render(@album)
     end
 
     private

@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::API
 
     def normalize(string)
-        string.parameterize.gsub(/\-/, "_")
+        string.gsub(/ +/, " ").gsub(/\&/, "and").parameterize.unicode_normalize
     end
 
     def render_entities(entities)

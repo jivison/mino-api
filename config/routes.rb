@@ -1,10 +1,15 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
-  resources :artists
+  resources :artists do
+    post '/merge', to: "artists#merge"
+  end
   resources :artist_maps, only: [:index, :create, :destroy]
 
-  resources :albums
+  resources :albums do
+    post '/merge', to: "albums#merge"
+    post '/move', to: "albums#move"
+  end
   resources :album_maps, only: [:index, :create, :destroy]
 
 

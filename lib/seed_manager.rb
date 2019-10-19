@@ -20,7 +20,7 @@ module SeedManager
     # Create the addition to associate the tracks with
     addition = Addition.create({
       addition_type: "discogs-vinyl",
-      id_string: "#{artist_name}-#{album['title']}"
+      id_string: "vinyl:#{artist_name}-#{album['title']}"
     })
 
     # Attempt to create an artist
