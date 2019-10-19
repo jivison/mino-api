@@ -25,7 +25,6 @@ class ArtistsController < ApplicationController
 
     def merge
         target_artist = Artist.find(params[:target_id])
-        byebug
         @artist.merge(target_artist)
         render_entity(target_artist)
     end
