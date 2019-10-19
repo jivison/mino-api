@@ -1,11 +1,15 @@
 class FormattingsController < ApplicationController
 
     def create
-        # params = { format, addition_id }
+        # params = { format }
         track = Track.find(params[:track_id])
         unless format = Format.find_by(name: normalize(params[:format]))
             format = Format.create name: normalize(params[:format])
         end
+        addition = Addition.create({
+            addition_type: "unassociated_add",
+            id_string: "add-format:#{format.name}"
+        })
         save_and_render(Formatting.new(
             track_id: track.id,
             format_id: format.id,

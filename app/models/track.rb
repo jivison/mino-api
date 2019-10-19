@@ -17,6 +17,10 @@ class Track < ApplicationRecord
   # Validations
   validates :title, presence: true, uniqueness: { scope: :album_id }
 
+  def sort_title
+    self.title.gsub(/the /i, "").upcase.gsub(/“”"'/, "").gsub(/\W/, "*").gsub(/[0-9]/, "#")
+  end
+
   private
   def use_album_maps
     if map = AlbumMap.find_by(input: self.album.title)
