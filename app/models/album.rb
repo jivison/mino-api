@@ -1,6 +1,7 @@
 class Album < ApplicationRecord
   # Associations
   has_many :album_maps, dependent: :destroy
+  has_many :tracks, dependent: :destroy
   belongs_to :artist
   
   # Callbacks (in order)

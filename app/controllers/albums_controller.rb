@@ -3,11 +3,11 @@ class AlbumsController < ApplicationController
     before_action :find_album, only: [:show, :destroy, :update]
 
     def index
-        render json: Album.all, status: 200
+        render_entities(Album.all)
     end
     
     def show
-        render json: @album, status: 200
+        render_entity(@album)
     end
 
     def create

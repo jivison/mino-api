@@ -9,4 +9,8 @@ class ApplicationRecord < ActiveRecord::Base
     end
   end
 
+  def self.sample
+    self.all.sample
+  end
+
 end

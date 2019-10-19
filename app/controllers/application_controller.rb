@@ -1,5 +1,16 @@
 class ApplicationController < ActionController::API
 
+    def normalize(string)
+        string.parameterize.gsub(/\-/, "_")
+    end
+
+    def render_entities(entities)
+        render json: entities, status: 200
+    end
+
+    def render_entity(entity)
+        render json: entity, status: 200
+    end
 
     def save_and_render(entity)
         if entity.save
