@@ -1,6 +1,6 @@
 class TracksController < ApplicationController
 
-    before_action :find_track, only: [:update, :destroy, :move, :show]
+    before_action :find_track, only: [:update, :destroy, :move, :show, :moveable]
 
     def index
         render_entities(Track.sort_by(:sort_title))
@@ -9,7 +9,6 @@ class TracksController < ApplicationController
     def show
         render_entity(@track)
     end
-
 
     def create
         track = Track.new track_params
@@ -22,6 +21,10 @@ class TracksController < ApplicationController
 
     def destroy
         destroy_and_render(@track)
+    end
+
+    def moveable
+        render_entities(Album.where(artist_id: @track.artist_id).select{ |album| album.id != @track.album_id } )
     end
 
     def move

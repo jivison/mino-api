@@ -1,6 +1,6 @@
 class AlbumsController < ApplicationController
 
-    before_action :find_album, only: [:show, :destroy, :update, :merge, :move]
+    before_action :find_album, only: [:show, :destroy, :update, :mergeable, :merge, :moveable, :move]
 
     def index
         render_entities(Album.sort_by(:sort_title))
@@ -16,7 +16,6 @@ class AlbumsController < ApplicationController
     end
 
     def update
-        byebug    
         @album.create_map if album_params[:title] != @album.title && params[:create_map]
         update_and_render(@album, album_params)
     end
@@ -25,10 +24,18 @@ class AlbumsController < ApplicationController
         destroy_and_render(@album)
     end
 
+    def mergeable
+        render_entities(@album.artist.albums.where.not(id: @album.id))
+    end
+
     def merge
         target_album = Album.find(params[:target_id])
         @album.merge(target_album)
         render_entity(target_album)
+    end
+
+    def moveable
+        render_entities(Artist.where.not(id: @album.artist_id))
     end
 
     def move
@@ -47,7 +54,7 @@ class AlbumsController < ApplicationController
     end
 
     def album_params
-        params.require(:album).permit(:title, :img_url, :artist_id)
+        params.require(:album).permit(:title, :image_url, :artist_id)
     end
 
 end

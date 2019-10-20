@@ -1,8 +1,8 @@
 class ArtistsController < ApplicationController
-    before_action :find_artist, only: [:show, :destroy, :update, :merge]
+    before_action :find_artist, only: [:show, :destroy, :update, :merge, :mergeable]
 
     def index
-        render_entities(Artist..sort_by(:sort_title))
+        render_entities(Artist.sort_by(:sort_title))
     end
     
     def show
@@ -23,6 +23,10 @@ class ArtistsController < ApplicationController
         destroy_and_render(@artist)
     end
 
+    def mergeable
+        render_entities(Artist.where.not(id: @artist.id))
+    end
+
     def merge
         target_artist = Artist.find(params[:target_id])
         @artist.merge(target_artist)
@@ -32,7 +36,7 @@ class ArtistsController < ApplicationController
     private
     def find_artist
         @artist = Artist.find_by(id: params[:artist_id])
-        @artist ||= Artist.find_by(params[:id]) 
+        @artist ||= Artist.find(params[:id]) 
     end
 
     def artist_params

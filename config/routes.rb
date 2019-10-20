@@ -3,18 +3,22 @@ Rails.application.routes.draw do
 
   resources :artists do
     post '/merge', to: "artists#merge"
+    get '/mergeable', to: "artists#mergeable"
   end
   resources :artist_maps, only: [:index, :create, :destroy]
 
   resources :albums do
     post '/merge', to: "albums#merge"
+    get '/mergeable', to: "albums#mergeable"
     post '/move', to: "albums#move"
+    get '/moveable', to: "albums#moveable"
   end
   resources :album_maps, only: [:index, :create, :destroy]
 
 
   resources :tracks, shallow: true do
     post '/move', to: "tracks#move"
+    get '/moveable', to: "tracks#moveable"
     resources :taggings, only: [:create, :destroy]
     resources :formattings, only: [:create, :destroy]
   end

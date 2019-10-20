@@ -24,7 +24,7 @@ class ApplicationController < ActionController::API
         if entity.save
             render json: entity, status: 201
         else
-            render_errors(entity.errors)
+            render_errors(entity.errors.full_messages)
         end
     end
 
@@ -32,7 +32,7 @@ class ApplicationController < ActionController::API
         if entity.update params
             render json: entity, status: 200
         else
-            render_errors(entity.errors)
+            render_errors(entity.errors.full_messages)
         end
     end
 
