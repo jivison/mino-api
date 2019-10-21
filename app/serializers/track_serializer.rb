@@ -1,5 +1,7 @@
 class TrackSerializer < ActiveModel::Serializer
   attributes :id, :title, :sort_title
+  attribute :format_names, key: :formats
+  attribute :tag_names, key: :tags
 
   belongs_to :artist
   belongs_to :album

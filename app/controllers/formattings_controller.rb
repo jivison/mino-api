@@ -13,12 +13,13 @@ class FormattingsController < ApplicationController
         save_and_render(Formatting.new(
             track_id: track.id,
             format_id: format.id,
-            addition_id: params[:addition_id]
+            addition_id: addition.id
         ))
     end
 
     def destroy
-        destroy_and_render(Formatting.find_by(id: params[:id]))
+        format = Format.find_by(normalize(name: params[:format]))
+        destroy_and_render(Formatting.find_by(track_id: params[:track_id], format_id: format.id))
     end
 
 end

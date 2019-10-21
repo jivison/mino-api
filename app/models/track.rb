@@ -21,6 +21,14 @@ class Track < ApplicationRecord
     self.title.gsub(/the /i, "").upcase.gsub(/“”"'/, "").gsub(/\W/, "*").gsub(/[0-9]/, "#")
   end
 
+  def format_names
+    self.formattings.collect(&:format).pluck(:name).uniq
+  end
+
+  def tag_names
+    self.taggings.collect(&:tag).pluck(:name).uniq
+  end
+  
   private
   def use_album_maps
     if map = AlbumMap.find_by(input: self.album.title)

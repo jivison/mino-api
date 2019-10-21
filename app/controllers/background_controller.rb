@@ -13,7 +13,7 @@ class BackgroundController < ApplicationController
     def get_artist_art
         art = ApiManager.get_artist_art(params[:artist_name])
         artist = Artist.find(params[:artist_id])
-        update_and_render(artist, {img_url: art})
+        update_and_render(artist, {image_url: art})
     end
 
     # Used internally (by this controller)
@@ -109,13 +109,14 @@ class BackgroundController < ApplicationController
 
         new_tag_names = new_tag_names.map do |tag_name|
             tag_name = tag_name.downcase
-            if !(tag = Tag.find_by(name: tag_name))
+            unless tag = Tag.find_by(name: tag_name)
                 tag = Tag.create(name: tag_name)
             end
 
             unless track.tags.map(&:name).include? tag.name.downcase
                 track.tags << tag 
                 added_tags << tag
+                track.save
             end
 
             tag
@@ -124,7 +125,8 @@ class BackgroundController < ApplicationController
         if params[:track_id]
             render_entities(added_tags) 
         else
-            added_tags
+            # added_tags
+            new_tag_names
         end
     end
 

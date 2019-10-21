@@ -5,9 +5,9 @@ class TaggingsController < ApplicationController
 
         # A list of tag names
         # Turn it into an array if it's just a single tag
-        taggings = [params[:taggings]].flatten
+        tags = [params[:tags]].flatten
 
-        created_taggings = taggings.map do |tag_name|
+        created_taggings = tags.map do |tag_name|
             tagging = nil
             if tag_entity = Tag.find_by(name: normalize(tag_name))
                 tagging = Tagging.create(tag_id: tag_entity.id, track_id: track.id)
@@ -24,7 +24,8 @@ class TaggingsController < ApplicationController
     end
 
     def destroy
-        destroy_and_render(Tagging.find(params[:id]))
+        tag = Tag.find_by(name: normalize(params[:tag]))
+        destroy_and_render(Tagging.find_by(track_id: params[:track_id], tag_id: tag.id))
     end
 
 end

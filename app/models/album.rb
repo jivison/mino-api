@@ -62,7 +62,7 @@ class Album < ApplicationRecord
   end
 
   def formats
-    self.tracks.collect(&:formattings).flatten.collect(&:format).pluck(&:name)
+    self.tracks.collect(&:formattings).flatten.collect(&:format).pluck(:name).uniq
   end
 
   private

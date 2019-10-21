@@ -19,8 +19,10 @@ Rails.application.routes.draw do
   resources :tracks, shallow: true do
     post '/move', to: "tracks#move"
     get '/moveable', to: "tracks#moveable"
-    resources :taggings, only: [:create, :destroy]
-    resources :formattings, only: [:create, :destroy]
+    resources :taggings, only: [:create]
+    post "taggings/destroy", to: "taggings#destroy"
+    resources :formattings, only: [:create]
+    post "formattings/destroy", to: "formattings#destroy"
   end
 
   resources :additions, only: [:create, :index, :show, :destroy]
