@@ -25,7 +25,7 @@ class CreationsController < ApplicationController
 
         send_data generate_csv(collection_csv), filename: "mino_collection.csv", type: "application/csv"
 
-        render_success("Collection exported successfully")
+        # render_success("Collection exported successfully")
 
     end
 
@@ -58,8 +58,8 @@ class CreationsController < ApplicationController
                 })
             end
 
-            lost = lost.sort_by { |track| track.sort_title }
-            found = found.sort_by { |track| track.sort_title }
+            lost = lost.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
+            found = found.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
             
             render json: { responses: responses, lost_tracks: lost, found_tracks: found }, status: 200
         else

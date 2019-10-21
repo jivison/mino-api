@@ -53,14 +53,16 @@ class BackgroundController < ApplicationController
 
         # Compare each pair
         # For me, reverse produces the better result
-        normalized_artists.reverse.permutation(2).to_a.each do |pair|
+        artists.reverse.permutation(2).to_a.each do |pair|
             if normalize(pair[0].title) == normalize(pair[1].title)
                 pair[0].merge(pair[1]) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
             end
         end
 
+        albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
+
         # Merge all similar albums (similar being capitals, &/and, spaces)
-        normalized_albums.permutation(2).to_a.each do |pair|
+        albums.reverse.permutation(2).to_a.each do |pair|
             if normalize(pair[0].title) == normalize(pair[1].title)
                 pair[0].merge(pair[1]) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
             end
@@ -97,6 +99,8 @@ class BackgroundController < ApplicationController
         albums.each do |album|
             album.destroy unless Artist.find_by(id: album.artist_id)
         end
+
+        render_success("Collection Cleaned")
     end
 
     def find_tags(track_id: nil)
