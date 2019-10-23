@@ -37,8 +37,13 @@ class BackgroundController < ApplicationController
     end
 
     def change_session
-        session[params[:session_key]] = params[:session_value]
-        render_entity(session)
+        session[params[:session_key].to_sym] = params[:session_value]
+        render_success("Changed session")
+    end
+
+    def get_session
+        session["focus"] ||= "artists"
+        render_success(session[request.params["session_key"]])
     end
 
     # TODO add all the "whole collection" actions to be applied to specific additions

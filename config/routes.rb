@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     post 'find_tags_for_every_track', to: "background#find_tags_for_every_track"
     post 'add_tags_to_album', to: "background#add_tags_to_album"
     post 'add_tags_to_artist', to: "background#add_tags_to_artist"
+    get 'get_session', to: "background#get_session"
   end
 
 end
