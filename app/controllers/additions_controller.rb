@@ -9,17 +9,20 @@ class AdditionsController < ApplicationController
     def create
         # params = { format, options (to be passed to the seed function) }
         countBefore = {artist: Artist.all.count, album: Album.all.count, track: Track.all.count}
+
+        options = JSON.parse(params[:options], symbolize_names: true)
+
         begin
           case params[:format]
             
           when "spotify"
-            SeedManager.seed_from_spotify params[:options]
+            SeedManager.seed_from_spotify options[:playlistId]
       
           when "youtube"
-            SeedManager.seed_from_youtube params[:options]
+            SeedManager.seed_from_youtube options[:playlistId]
     
           when "vinyl"
-            SeedManager.seed_from_vinyl JSON.parse(params[:options], symbolize_names: true)
+            SeedManager.seed_from_vinyl options
       
           end
         rescue ArgumentError
@@ -41,7 +44,7 @@ class AdditionsController < ApplicationController
     end
 
     def show
-        render_entity(@addition)
+        render json: @addition, serializer: AdditionShowSerializer
     end
 
     def destroy

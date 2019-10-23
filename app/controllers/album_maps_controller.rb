@@ -2,8 +2,12 @@ class AlbumMapsController < ApplicationController
     before_action :find_album_map, only: :destroy
 
     def index
-        album_map_hash = AlbumMap.group_by(:album_id)
+        album_map_hash = AlbumMap.group_by(:album_name)
         render json: album_map_hash, status: 200
+    end
+
+    def show
+        render_entities(AlbumMap.where(album_id: params[:album_id]))
     end
 
     def create

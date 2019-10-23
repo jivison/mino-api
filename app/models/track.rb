@@ -28,6 +28,10 @@ class Track < ApplicationRecord
   def tag_names
     self.taggings.collect(&:tag).pluck(:name).uniq
   end
+
+  def addition_ids
+    self.formattings.collect(&:addition_id).uniq
+  end
   
   private
   def use_album_maps

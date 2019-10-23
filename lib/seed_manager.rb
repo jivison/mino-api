@@ -144,7 +144,8 @@ module SeedManager
                 Formatting.create(
                     track_id: Track.find_by({
                       artist_id: created_artist.id,
-                      album_id: created_album.id
+                      album_id: created_album.id,
+                      title: track
                       }).id,
                     format_id: format.id,
                     addition_id: addition.id

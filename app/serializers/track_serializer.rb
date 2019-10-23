@@ -1,5 +1,5 @@
 class TrackSerializer < ActiveModel::Serializer
-  attributes :id, :title, :sort_title
+  attributes :id, :title, :sort_title, :addition_ids
   attribute :format_names, key: :formats
   attribute :tag_names, key: :tags
 

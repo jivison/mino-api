@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :artists do
     post '/merge', to: "artists#merge"
     get '/mergeable', to: "artists#mergeable"
+    get '/maps', to: "artist_maps#show"
   end
   resources :artist_maps, only: [:index, :create, :destroy]
 
@@ -12,6 +13,7 @@ Rails.application.routes.draw do
     get '/mergeable', to: "albums#mergeable"
     post '/move', to: "albums#move"
     get '/moveable', to: "albums#moveable"
+    get '/maps', to: "album_maps#show"
   end
   resources :album_maps, only: [:index, :create, :destroy]
 
