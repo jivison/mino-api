@@ -18,7 +18,7 @@ class FormattingsController < ApplicationController
     end
 
     def destroy
-        format = Format.find_by(normalize(name: params[:format]))
+        format = Format.find_by(name: normalize(params[:format]))
         destroy_and_render(Formatting.find_by(track_id: params[:track_id], format_id: format.id))
     end
 
