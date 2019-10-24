@@ -11,7 +11,7 @@ class InsightsController < ApplicationController
           artists: Artist.all,
           albums: Album.all,
           tracks: Track.all,
-          additions: CollectionAddition.where("addition_type != ?", "unassociated_add"),
+        additions: Addition.where("addition_type != ?", "unassociated_add"),
           maps: [*AlbumMap.all.to_a, *ArtistMap.all.to_a],
           tags: @taggings
         }
@@ -47,11 +47,11 @@ class InsightsController < ApplicationController
     
         # Percentages
         @insight_data[:num_albums_with_images] = @insight_data[:albums].inject(0) { |acc, album| 
-          acc + (album.img_url == "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu4oc-oZdWxQV9--CBYadMyrQEKXd7-CSBsNdsN7L8KPCJD1Dt" || album.img_url.nil? ? 0 : 1)
+          acc + (album.image_url == "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu4oc-oZdWxQV9--CBYadMyrQEKXd7-CSBsNdsN7L8KPCJD1Dt" || album.image_url.nil? ? 0 : 1)
         }
         
         @insight_data[:num_artists_with_images] = @insight_data[:artists].inject(0) { |acc, artist| 
-          acc + (artist.img_url == "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxtVFrGlu-W8CsCKncYpJQ3pvQjRIwsraMmQDyIiquE3lOSnbu" || artist.img_url.nil? ? 0 : 1)
+          acc + (artist.image_url == "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxtVFrGlu-W8CsCKncYpJQ3pvQjRIwsraMmQDyIiquE3lOSnbu" || artist.image_url.nil? ? 0 : 1)
         }
     
         @insight_data[:num_tracks_with_tags] = @insight_data[:tracks].inject(0) { |acc, track|
@@ -72,6 +72,8 @@ class InsightsController < ApplicationController
           }
           acc
         }
+
+        render_entity(@insight_data)
     
       end
     

@@ -29,6 +29,8 @@ Rails.application.routes.draw do
 
   resources :additions, only: [:create, :index, :show, :destroy]
 
+  get "/insights", to: "insights#index"
+
   # Creations controller
   scope :creations do
     post 'create_spotify_playlist', to: "creations#create_spotify_playlist"
