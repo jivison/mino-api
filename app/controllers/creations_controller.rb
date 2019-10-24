@@ -61,7 +61,7 @@ class CreationsController < ApplicationController
             lost = lost.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
             found = found.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
             
-            render json: { responses: responses, lost_tracks: lost, found_tracks: found }, status: 200
+            render json: { new_playlist: new_playlist, responses: responses, lost_tracks: lost, found_tracks: found }, status: 200
         else
             render_errors("Something went wrong authenticating you.", 400)
         end
