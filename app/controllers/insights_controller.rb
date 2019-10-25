@@ -20,13 +20,16 @@ class InsightsController < ApplicationController
           artist.attributes.to_options.merge({
             track_count: artist.tracks.count
           })
-        }.sort_by { |artist| artist[:track_count] }
+        }.sort_by { |artist| -artist[:track_count] }
+        # It was sorting them backward ^
     
         @insight_data[:top_albums] = @insight_data[:albums].map { |album|
           album.attributes.to_options.merge({
             track_count: album.tracks.count
           })
-        }.sort_by { |album| album[:track_count] }
+        }
+        .sort_by { |album| -album[:track_count] }
+        # It was sorting them backward ^
     
         # Averages
         @insight_data[:tracks_per_artist] = @insight_data[:artists].map { |artist|

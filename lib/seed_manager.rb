@@ -43,14 +43,15 @@ module SeedManager
 
     # Create the all the tracks
     tracks.each do |track|
-      track = Track.create(
+      Track.create(
         title: track,
         artist_id: artist_map.artist_id,
         album_id: album_map.album_id,
       )
+      persisted_track = Track.find_by(album_id: album_map.album_id, title: track)
       _formatting = Formatting.create({
         format: format,
-        track: track,
+        track: persisted_track,
         addition: addition
       })
     end

@@ -32,9 +32,9 @@ class Album < ApplicationRecord
 
         track.formattings.each do |formatting|
           Formatting.create(
-              track: persisted_track,
-              format: formatting.format,
-              addition: formatting.addition
+              track_id: persisted_track.id,
+              format_id: formatting.format_id,
+              addition_id: formatting.addition_id
           )
           formatting.destroy
         end
@@ -42,8 +42,21 @@ class Album < ApplicationRecord
         track.delete
 
       else
-        track.album = target_album
-        track.save
+        new_track = Track.create({
+            title: track.title,
+            album_id: target_album.id,
+            artist_id: track.artist_id,
+            created_at: track.created_at
+        })
+        track.formattings.each do |formatting|
+            Formatting.create({
+                track_id: new_track.id,
+                format_id: formatting.format_id,
+                addition_id: formatting.addition_id
+            })
+        end
+        
+        track.destroy
       end
 
     end
@@ -53,8 +66,14 @@ class Album < ApplicationRecord
         album_map.save
     end
 
+    AlbumMap.create({
+        album_id: target_album.id,
+        input: self.title,
+        scope: self.artist_id
+    })
+    
     self.destroy
-
+    
   end
 
   def sort_title

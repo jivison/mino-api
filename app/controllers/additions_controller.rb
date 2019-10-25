@@ -26,7 +26,7 @@ class AdditionsController < ApplicationController
       
           end
         rescue ArgumentError
-          render json: { errors: "Invalid playlist ID!" }, status: 400
+          render json: { errors: "Invalid input!" }, status: 400
           Addition.last.destroy()
         rescue Exception => e
           render json: { errors: "Something went wrong..." }, status: 500

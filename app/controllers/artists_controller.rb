@@ -1,4 +1,5 @@
 class ArtistsController < ApplicationController
+    
     before_action :find_artist, only: [:show, :destroy, :update, :merge, :mergeable]
 
     def index
