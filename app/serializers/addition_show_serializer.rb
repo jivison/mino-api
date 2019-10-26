@@ -4,7 +4,7 @@ class AdditionShowSerializer < ActiveModel::Serializer
   has_many :tracks
 
   class TrackSerializer < ActiveModel::Serializer
-    attributes :title, :id, :sort_title, :album
+    attributes :title, :id, :sort_title, :album, :artist
   end
 
 end

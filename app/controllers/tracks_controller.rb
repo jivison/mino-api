@@ -30,7 +30,8 @@ class TracksController < ApplicationController
     def move
         target_album = Album.find(params[:target_id])
         @track.album = target_album
-        save_and_render(@track)
+        @track.save
+        render_entity(target_album)
     end
 
     private

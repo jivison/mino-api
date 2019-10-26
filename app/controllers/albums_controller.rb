@@ -44,6 +44,10 @@ class AlbumsController < ApplicationController
             album_map.update scope: target_artist.id
         end
         @album.artist = target_artist
+        @album.tracks.each do |track|
+            track.artist = target_artist
+            track.save
+        end
         save_and_render(@album)
     end
 

@@ -2,8 +2,11 @@ class ArtistMapsController < ApplicationController
     before_action :find_artist_map, only: :destroy
 
     def index
-        artist_map_hash = ArtistMap.group_by(:artist_name) 
-        render json: artist_map_hash, status: 200
+        artist_map_hash = ArtistMap.group_by(:artist_name)
+        render json: {maps: artist_map_hash, sort_titles: Artist.all.inject({}) { |acc, artist|
+            acc[artist.title] = artist.sort_title
+            acc 
+        }}, status: 200
     end
 
     def show

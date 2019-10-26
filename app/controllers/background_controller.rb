@@ -51,7 +51,7 @@ class BackgroundController < ApplicationController
     def clean_collection
         # Merge all similar artists (similar being capitals, &/and, spaces)
 
-        tracks = params[:addition_id] ? Track.all.select {|track| track.formattings.map(&:collection_addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? Track.all.select {|track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
 
         albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
         artists = params[:addition_id] ? tracks.map(&:artist).uniq : Artist.all
@@ -74,7 +74,7 @@ class BackgroundController < ApplicationController
         end
 
         # Update the lists
-        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:collection_addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
 
         albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
         artists = params[:addition_id] ? tracks.map(&:artist).uniq : Artist.all
@@ -156,7 +156,7 @@ class BackgroundController < ApplicationController
     end
 
     def find_tags_for_every_track
-        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:collection_addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
 
         added_tags = tracks.map do |track|
             find_tags(track_id: track.id)

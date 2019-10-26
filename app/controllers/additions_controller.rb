@@ -40,7 +40,7 @@ class AdditionsController < ApplicationController
     end
 
     def index
-        render_entities(Addition.all)
+        render_entities(Addition.all.reverse)
     end
 
     def show

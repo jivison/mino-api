@@ -58,8 +58,32 @@ class CreationsController < ApplicationController
                 })
             end
 
-            lost = lost.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
-            found = found.map { |id| Track.find(id) }.sort_by { |track| track.sort_title }
+            lost = lost.map do |id|
+                track = Track.find(id)
+                track.attributes.to_options.merge({
+                    sort_title: track.sort_title,
+                    album: {
+                        image_url: track.album.image_url
+                    },
+                    artist: {
+                        title: track.artist.title
+                    }
+                })
+            end.sort_by { |track| track[:sort_title] }
+
+            found = found.map do |id|
+                track = Track.find(id)
+                track.attributes.to_options.merge({
+                    sort_title: track.sort_title,
+                    album: {
+                        image_url: track.album.image_url
+                    },
+                    artist: {
+                        title: track.artist.title
+                    }
+                })
+            end.sort_by { |track| track[:sort_title] }
+
             
             render json: { new_playlist: new_playlist, responses: responses, lost_tracks: lost, found_tracks: found }, status: 200
         else

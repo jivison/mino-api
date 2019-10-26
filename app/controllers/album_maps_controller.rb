@@ -3,7 +3,10 @@ class AlbumMapsController < ApplicationController
 
     def index
         album_map_hash = AlbumMap.group_by(:album_name)
-        render json: album_map_hash, status: 200
+        render json: {maps: album_map_hash, sort_titles: Album.all.inject({}) { |acc, album|
+                acc[album.title] = album.sort_title
+                acc
+            }}, status: 200
     end
 
     def show
