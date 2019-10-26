@@ -26,8 +26,8 @@ class BackgroundController < ApplicationController
         added_tags = []
 
         tag_names.reject { |tag_name| tag_name == "" || tag_name == " " }.each do |tag_name|
-            if !(tag = Tag.find_by(name: tag_name))
-                tag = Tag.create(name: tag_name)
+            if !(tag = Tag.find_by(name: normalize(tag_name)))
+                tag = Tag.create(name: normalize(tag_name))
             end
             unless track.tags.map{ |tag| tag.name.downcase }.include? tag.name.downcase
                 track.tags << tag
@@ -118,8 +118,8 @@ class BackgroundController < ApplicationController
 
         new_tag_names = new_tag_names.map do |tag_name|
             tag_name = tag_name.downcase
-            unless tag = Tag.find_by(name: tag_name)
-                tag = Tag.create(name: tag_name)
+            unless tag = Tag.find_by(name: normalize(tag_name))
+            tag = Tag.create(name: normalize(tag_name))
             end
 
             unless track.tags.map(&:name).include? tag.name.downcase
