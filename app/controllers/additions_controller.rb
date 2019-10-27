@@ -29,7 +29,7 @@ class AdditionsController < ApplicationController
           render json: { errors: "Invalid input!" }, status: 400
           Addition.last.destroy()
         rescue Exception => e
-          render json: { errors: "Something went wrong..." }, status: 500
+          render json: { error: e }, status: 500
         else
           trackCount = Track.all.count - countBefore[:track]
           albumCount = Album.all.count - countBefore[:album]

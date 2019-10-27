@@ -41,7 +41,7 @@ class Track < ApplicationRecord
   end
 
   def stop_duplicates
-    if persisted_track = Track.find_by(album_id: self.album.id, title: self.title)
+    if persisted_track = Track.find_by(album_id: self.album_id, title: self.title)
       false
     end 
   end

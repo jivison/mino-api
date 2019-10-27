@@ -134,20 +134,17 @@ module SeedManager
                 artist_map = ArtistMap.find_by(input: artist)
                 album_map = AlbumMap.find_by(input: album, scope: artist_map.artist_id)
 
-                created_artist = Artist.find(artist_map.artist_id)
-                created_album = Album.find(album_map.album_id)
-
                 created_track = Track.create(
                     artist_id: artist_map.artist_id,
                     album_id: album_map.album_id,
                     title: track
-                )
+                ) || Track.find_by({
+                  album_id: album_map.album_id,
+                  title: track
+                  })
+
                 Formatting.create(
-                    track_id: Track.find_by({
-                      artist_id: created_artist.id,
-                      album_id: created_album.id,
-                      title: track
-                      }).id,
+                    track_id: created_track.id,
                     format_id: format.id,
                     addition_id: addition.id
                 )
