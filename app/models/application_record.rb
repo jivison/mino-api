@@ -1,6 +1,9 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
+  # Disable postgres logging
+  ActiveRecord::Base.logger.level = 1 # or Logger::INFO
+
   def self.group_by(column)
     self.all.inject({}) do |acc, entity| 
       acc[entity.send(column)] ||= []
