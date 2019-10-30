@@ -79,29 +79,35 @@ module Spotify
     # The spotify id is                 |   V  this part V    |
     # https://open.spotify.com/playlist/1iikst9y9yHGAc6vkVCRrm
     def get_playlist_tracks(spotify_id, limit=100)
-      response = query("playlists/" + spotify_id + "/tracks", {limit: limit})
-      
+
+      # Queries the Spotify API
+      response = query("playlists/#{spotify_id}/tracks", {limit: limit})
+      # Stores the next page url
       next_page = response["next"]
     
+      # Hard cap the limit to 100 (the maximum that Spotify takes)
       limit = (limit > 100) ? 100 : limit
+      # If the user wants more than one page of results, and the next page exists
       if limit == 100 && !next_page.nil?
-        page = 1
         loop do
-          
+          # Get the next page with the next_page url
           next_response = HTTParty.get(next_page, {
             headers: {
               "Authorization" => "Bearer #{@auth['access_token']}",
             },
           })
 
+          # Get the new next page
           next_page = next_response["next"]
-
+          # Concat the tracks into the original response
+          # So that seed_manager.rb can process them
           response["items"].concat(next_response["items"])
-
+          # Keep going until there is no next_page
           break unless next_response["next"]
-          page += 1
         end
       end
+
+
       {
         response: response,
         method: "playlist:tracks"
