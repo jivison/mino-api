@@ -98,7 +98,7 @@ module Spotify
           })
 
           # Get the new next page
-          next_page = next_response["next"]
+          next_page = next_response["next"] 
           # Concat the tracks into the original response
           # So that seed_manager.rb can process them
           response["items"].concat(next_response["items"])
