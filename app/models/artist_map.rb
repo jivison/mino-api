@@ -1,5 +1,6 @@
 class ArtistMap < ApplicationRecord
     belongs_to :artist
+    belongs_to :user
 
     validates :input, uniqueness: { scope: :artist_id }, presence: true
 

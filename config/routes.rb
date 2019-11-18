@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
+  # Users
+  post "/signup", to: "users#create", as: :signup
+  get "/users/current", to: "users#current", as: :current_user
+
+  post "/signin", to: "session#create"
+  post "/signout", to: "session#destroy"
+
   resources :artists do
     post '/merge', to: "artists#merge"
     get '/mergeable', to: "artists#mergeable"
@@ -29,6 +36,7 @@ Rails.application.routes.draw do
 
   resources :additions, only: [:create, :index, :show, :destroy]
 
+  # Misc Routes
   get "/insights", to: "insights#index"
 
   # Creations controller

@@ -5,6 +5,7 @@ class Artist < ApplicationRecord
     has_many :artist_maps, dependent: :destroy
     has_many :albums, dependent: :destroy
     has_many :tracks, dependent: :destroy
+    belongs_to :user
 
     # Callbacks (in order)
     after_initialize :set_default_image_url
@@ -15,16 +16,17 @@ class Artist < ApplicationRecord
     validate :check_maps, on: :create
 
     # This method is accessed from outside of the model as well
-    def create_map(map_input: self.title)
-        if !ArtistMap.exists?(input: map_input)
+    def create_map(current_user = self.user, map_input: self.title)
+        if !current_user.artist_maps.exists?(input: map_input)
             ArtistMap.create(
                 input: map_input,
-                artist_id: id
+                artist_id: id,
+                user_id: current_user.id
             )
         end
     end
     
-    def merge(target_artist)
+    def merge(target_artist, current_user)
 
         self.albums.each do |album|
             persisted_album = target_artist.albums.find_by(title: album.title)
@@ -46,7 +48,8 @@ class Artist < ApplicationRecord
                             Formatting.create(
                                 track: persisted_track,
                                 format: formatting.format,
-                                addition: formatting.addition
+                                addition: formatting.addition,
+                                user_id: current_user.id
                             )
                             formatting.destroy
                         end
@@ -88,7 +91,7 @@ class Artist < ApplicationRecord
 
     private
     def check_maps
-        if ArtistMap.exists?(input: self.title)
+        if self.user.artist_maps.exists?(input: self.title)
             errors.add(:title, "has already been mapped to another artist")
         end
     end

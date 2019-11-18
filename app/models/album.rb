@@ -3,6 +3,7 @@ class Album < ApplicationRecord
   has_many :album_maps, dependent: :destroy
   has_many :tracks, dependent: :destroy
   belongs_to :artist
+  belongs_to :user
   
   # Callbacks (in order)
   after_initialize :set_default_image_url
@@ -13,17 +14,18 @@ class Album < ApplicationRecord
   validates :title, presence: true, uniqueness: {scope: :artist_id}
   validate :check_maps, on: :create
 
-  def create_map(map_input: self.title)
-    if !AlbumMap.exists?(input: map_input, scope: self.artist.id)
+  def create_map(current_user = self.user, map_input: self.title)
+    if !current_user.album_maps.exists?(input: map_input, scope: self.artist.id)
       AlbumMap.create(
           input: map_input,
           album_id: id,
-          scope: self.artist.id
+          scope: self.artist.id,
+          user_id: current_user.id
       )
     end
   end
 
-  def merge(target_album)
+  def merge(target_album, current_user)
     self.tracks.each do |track|
 
       persisted_track = target_album.tracks.find_by(title: track.title)
@@ -34,7 +36,8 @@ class Album < ApplicationRecord
           Formatting.create(
               track_id: persisted_track.id,
               format_id: formatting.format_id,
-              addition_id: formatting.addition_id
+              addition_id: formatting.addition_id,
+              user_id: current_user.id
           )
           formatting.destroy
         end
@@ -46,13 +49,15 @@ class Album < ApplicationRecord
             title: track.title,
             album_id: target_album.id,
             artist_id: track.artist_id,
-            created_at: track.created_at
+            created_at: track.created_at,
+            user: current_user.id
         })
         track.formattings.each do |formatting|
             Formatting.create({
                 track_id: new_track.id,
                 format_id: formatting.format_id,
-                addition_id: formatting.addition_id
+                addition_id: formatting.addition_id,
+                user_id: current_user.id
             })
         end
         
@@ -69,7 +74,8 @@ class Album < ApplicationRecord
     AlbumMap.create({
         album_id: target_album.id,
         input: self.title,
-        scope: self.artist_id
+        scope: self.artist_id,
+        user_id: current_user.id
     })
     
     self.destroy
@@ -90,13 +96,13 @@ class Album < ApplicationRecord
   end
 
   def check_maps
-    if AlbumMap.exists?(input: self.title, scope: self.artist.id)
+    if self.user.album_maps.exists?(input: self.title, scope: self.artist.id)
       errors.add(:title, "has already been mapped to another album for this artist")
     end
   end
 
   def use_artist_maps
-    if map = ArtistMap.find_by(input: self.artist.title)
+    if map = self.user.artist_maps.find_by(input: self.artist.title)
       self.artist_id = map.artist_id
     end
   end

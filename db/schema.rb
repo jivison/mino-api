@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_19_013207) do
+ActiveRecord::Schema.define(version: 2019_11_18_004730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,8 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.string "id_string"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_additions_on_user_id"
   end
 
   create_table "album_maps", force: :cascade do |t|
@@ -28,7 +30,9 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.integer "scope"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["album_id"], name: "index_album_maps_on_album_id"
+    t.index ["user_id"], name: "index_album_maps_on_user_id"
   end
 
   create_table "albums", force: :cascade do |t|
@@ -37,13 +41,17 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.bigint "artist_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["artist_id"], name: "index_albums_on_artist_id"
+    t.index ["user_id"], name: "index_albums_on_user_id"
   end
 
   create_table "artist_maps", force: :cascade do |t|
     t.string "input"
     t.bigint "artist_id", null: false
+    t.bigint "user_id", null: false
     t.index ["artist_id"], name: "index_artist_maps_on_artist_id"
+    t.index ["user_id"], name: "index_artist_maps_on_user_id"
   end
 
   create_table "artists", force: :cascade do |t|
@@ -51,6 +59,8 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.string "image_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_artists_on_user_id"
   end
 
   create_table "formats", force: :cascade do |t|
@@ -65,9 +75,11 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.bigint "addition_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["addition_id"], name: "index_formattings_on_addition_id"
     t.index ["format_id"], name: "index_formattings_on_format_id"
     t.index ["track_id"], name: "index_formattings_on_track_id"
+    t.index ["user_id"], name: "index_formattings_on_user_id"
   end
 
   create_table "taggings", force: :cascade do |t|
@@ -75,8 +87,10 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.bigint "tag_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
     t.index ["track_id"], name: "index_taggings_on_track_id"
+    t.index ["user_id"], name: "index_taggings_on_user_id"
   end
 
   create_table "tags", force: :cascade do |t|
@@ -91,18 +105,36 @@ ActiveRecord::Schema.define(version: 2019_10_19_013207) do
     t.string "title"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "user_id", null: false
     t.index ["album_id"], name: "index_tracks_on_album_id"
     t.index ["artist_id"], name: "index_tracks_on_artist_id"
+    t.index ["user_id"], name: "index_tracks_on_user_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "username"
+    t.string "password_digest"
+    t.string "email"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  add_foreign_key "additions", "users"
   add_foreign_key "album_maps", "albums"
+  add_foreign_key "album_maps", "users"
   add_foreign_key "albums", "artists"
+  add_foreign_key "albums", "users"
   add_foreign_key "artist_maps", "artists"
+  add_foreign_key "artist_maps", "users"
+  add_foreign_key "artists", "users"
   add_foreign_key "formattings", "additions"
   add_foreign_key "formattings", "formats"
   add_foreign_key "formattings", "tracks"
+  add_foreign_key "formattings", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "taggings", "tracks"
+  add_foreign_key "taggings", "users"
   add_foreign_key "tracks", "albums"
   add_foreign_key "tracks", "artists"
+  add_foreign_key "tracks", "users"
 end

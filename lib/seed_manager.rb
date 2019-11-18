@@ -2,7 +2,7 @@ require_relative "api_manager"
 require_relative "scrubber"
 
 module SeedManager
-  def self.seed_from_vinyl(params)
+  def self.seed_from_vinyl(params, current_user)
 
     # Create a format if it doesn't already exist
     unless format = Format.find_by(name: "vinyl")
@@ -20,13 +20,15 @@ module SeedManager
     # Create the addition to associate the tracks with
     addition = Addition.create({
       addition_type: "discogs-vinyl",
-      id_string: "vinyl:#{artist_name}-#{album['title']}"
+      id_string: "vinyl:#{artist_name}-#{album['title']}",
+      user_id: current_user.id
     })
 
     # Attempt to create an artist
     Artist.create(
       title: artist_name,
       image_url: ApiManager.get_artist_art(artist_name),
+      user_id: current_user.id
     )
 
     # Attempt to create an album
@@ -34,12 +36,13 @@ module SeedManager
       title: album["title"],
       artist_id: ArtistMap.find_by(input: artist_name).artist_id,
       image_url: ApiManager.get_album_art(album["title"], artist_name),
+      user_id: current_user.id
     )
 
     # Whether or not the above creations succeded, check the map databases
     # to get the artist's and album's ids
-    artist_map = ArtistMap.find_by(input: artist_name)
-    album_map = AlbumMap.find_by(input: album["title"], scope: artist_map.artist_id)
+    artist_map = current_user.artist_maps.find_by(input: artist_name)
+    album_map = current_user.album_maps.find_by(input: album["title"], scope: artist_map.artist_id)
 
     # Create the all the tracks
     tracks.each do |track|
@@ -47,18 +50,20 @@ module SeedManager
         title: track,
         artist_id: artist_map.artist_id,
         album_id: album_map.album_id,
+        user_id: current_user.id
       )
-      persisted_track = Track.find_by(album_id: album_map.album_id, title: track)
+      persisted_track = current_user.tracks.find_by(album_id: album_map.album_id, title: track)
       _formatting = Formatting.create({
         format: format,
         track: persisted_track,
-        addition: addition
+        addition: addition,
+        user_id: current_user.id
       })
     end
 
   end
 
-  def self.seed_from_spotify(spotify_id)
+  def self.seed_from_spotify(spotify_id, current_user)
     
     unless format = Format.find_by(name: "spotify")
       format = Format.create(name: "spotify")
@@ -68,14 +73,15 @@ module SeedManager
 
     addition = Addition.create({
       addition_type: "spotify_playlist",
-      id_string: spotify_id
+      id_string: spotify_id,
+      user_id: current_user.id
     })
     
-    self.seed_from_linked_hash(response, addition, format)
+    self.seed_from_linked_hash(response, addition, format, current_user)
 
   end
 
-  def self.seed_from_youtube(playlist_id)
+  def self.seed_from_youtube(playlist_id, current_user)
 
     unless format = Format.find_by(name: "youtube")
       format = Format.create(name: "youtube")
@@ -86,7 +92,8 @@ module SeedManager
 
     addition = Addition.create({
       addition_type: "youtube_playlist",
-      id_string: playlist_id
+      id_string: playlist_id,
+      user_id: current_user.id
     })
     
     data = {}
@@ -105,17 +112,18 @@ module SeedManager
 
     end
 
-    self.seed_from_linked_hash(data, addition, format)
+    self.seed_from_linked_hash(data, addition, format, current_user)
 
   end
 
-  def self.seed_from_linked_hash(linked_hash, addition, format)
+  def self.seed_from_linked_hash(linked_hash, addition, format, current_user)
     linked_hash.each do |artist, albums|
         
         # Attempt to create an artist
         Artist.create(
             title: artist,
             image_url: ApiManager.get_artist_art(artist),
+            user_id: current_user.id
         )
 
         albums.each do |album, tracks|
@@ -123,22 +131,24 @@ module SeedManager
             # Attempt to create an album
             Album.create(
                 title: album,
-                artist_id: ArtistMap.find_by(input: artist).artist_id,
+                artist_id: current_user.artist_maps.find_by(input: artist).artist_id,
                 image_url: ApiManager.get_album_art(album, artist),
+                user_id: current_user.id
             )
 
             tracks.each do |track|
                 
                 # Whether or not the above creations succeded, check the maps for
                 # The artist/album id
-                artist_map = ArtistMap.find_by(input: artist)
-                album_map = AlbumMap.find_by(input: album, scope: artist_map.artist_id)
+                artist_map = current_user.artist_maps.find_by(input: artist)
+                album_map = current_user.album_maps.find_by(input: album, scope: artist_map.artist_id)
 
                 created_track = Track.create(
                     artist_id: artist_map.artist_id,
                     album_id: album_map.album_id,
-                    title: track
-                ) || Track.find_by({
+                    title: track,
+                    user_id: current_user.id
+                ) || current_user.tracks.find_by({
                   album_id: album_map.album_id,
                   title: track
                   })
@@ -146,7 +156,8 @@ module SeedManager
                 Formatting.create(
                     track_id: created_track.id,
                     format_id: format.id,
-                    addition_id: addition.id
+                    addition_id: addition.id,
+                    user_id: current_user.id
                 )
 
             end # Tracks each

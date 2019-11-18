@@ -7,6 +7,7 @@ class Track < ApplicationRecord
   # Associations
   belongs_to :album
   belongs_to :artist
+  belongs_to :user
 
   has_many :taggings, dependent: :destroy
   has_many :tags, through: :taggings
@@ -35,13 +36,13 @@ class Track < ApplicationRecord
   
   private
   def use_album_maps
-    if map = AlbumMap.find_by(input: self.album.title)
+    if map = self.user.album_maps.find_by(input: self.album.title)
       self.album_id = map.album_id
     end
   end
 
   def stop_duplicates
-    if persisted_track = Track.find_by(album_id: self.album_id, title: self.title)
+    if persisted_track = self.user.tracks.find_by(album_id: self.album_id, title: self.title)
       false
     end 
   end

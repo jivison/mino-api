@@ -3,7 +3,7 @@ class AlbumsController < ApplicationController
     before_action :find_album, only: [:show, :destroy, :update, :mergeable, :merge, :moveable, :move]
 
     def index
-        render_entities(Album.sort_by(:sort_title))
+        render_entities(current_user.albums.sort_by { |album| album.sort_title })
     end
     
     def show
@@ -12,11 +12,12 @@ class AlbumsController < ApplicationController
 
     def create
         album = Album.new album_params
+        album.user = current_user
         save_and_render(album)
     end
 
     def update
-        @album.create_map if album_params[:title] != @album.title && params[:create_map]
+        @album.create_map(current_user) if album_params[:title] != @album.title && params[:create_map]
         update_and_render(@album, album_params)
     end
 
@@ -29,17 +30,17 @@ class AlbumsController < ApplicationController
     end
 
     def merge
-        target_album = Album.find(params[:target_id])
-        @album.merge(target_album)
+        target_album = current_user.albums.find(params[:target_id])
+        @album.merge(target_album, current_user)
         render_entity(target_album)
     end
 
     def moveable
-        render_entities(Artist.where.not(id: @album.artist_id))
+        render_entities(current_user.artists.where.not(id: @album.artist_id))
     end
 
     def move
-        target_artist = Artist.find(params[:target_id])
+        target_artist = current_user.artists.find(params[:target_id])
         @album.album_maps.each do |album_map|
             album_map.update scope: target_artist.id
         end
@@ -53,8 +54,8 @@ class AlbumsController < ApplicationController
 
     private
     def find_album
-        @album = Album.find_by(id: params[:album_id])
-        @album ||= Album.find(params[:id])
+        @album = current_user.albums.find_by(id: params[:album_id])
+        @album ||= current_user.albums.find(params[:id])
     end
 
     def album_params
