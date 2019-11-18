@@ -6,13 +6,13 @@ class BackgroundController < ApplicationController
 
     def get_album_art
         art = ApiManager.get_album_art(params[:album_name], params[:artist_name])
-        album = Album.find(params[:album_id])
+        album = current_user.albums.find(params[:album_id])
         update_and_render(album, {image_url: art})
     end
 
     def get_artist_art
         art = ApiManager.get_artist_art(params[:artist_name])
-        artist = Artist.find(params[:artist_id])
+        artist = current_user.artists.find(params[:artist_id])
         update_and_render(artist, {image_url: art})
     end
 
@@ -21,7 +21,7 @@ class BackgroundController < ApplicationController
         tag_names ||= [params[:tags]].flatten
         track_id ||= params[:track_id]
 
-        track = Track.find(track_id)
+        track = current_user.tracks.find(track_id)
 
         added_tags = []
 
@@ -46,38 +46,35 @@ class BackgroundController < ApplicationController
         render_success(session[request.params["session_key"]])
     end
 
-    # TODO add all the "whole collection" actions to be applied to specific additions
-
     def clean_collection
         # Merge all similar artists (similar being capitals, &/and, spaces)
 
-        tracks = params[:addition_id] ? Track.all.select {|track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? current_user.tracks.select {|track| track.formattings.map(&:addition_id).include? params[:addition_id] } : current_user.tracks
 
-        albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
-        artists = params[:addition_id] ? tracks.map(&:artist).uniq : Artist.all
+        albums = params[:addition_id] ? tracks.map(&:album).uniq : current_user.albums
+        artists = params[:addition_id] ? tracks.map(&:artist).uniq : current_user.artists
 
         # Compare each pair
         # For me, reverse produces the better result
         artists.reverse.permutation(2).to_a.each do |pair|
             if normalize(pair[0].title) == normalize(pair[1].title)
-                pair[0].merge(pair[1]) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
+                pair[0].merge(pair[1], current_user) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
             end
         end
 
-        albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
-
+        albums = params[:addition_id] ? tracks.map(&:album).uniq : current_user.albums
         # Merge all similar albums (similar being capitals, &/and, spaces)
         albums.reverse.permutation(2).to_a.each do |pair|
             if normalize(pair[0].title) == normalize(pair[1].title)
-                pair[0].merge(pair[1]) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
+                pair[0].merge(pair[1], current_user) unless pair[1].id == pair[0].id || normalize(pair[1].title) == ""
             end
         end
 
         # Update the lists
-        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? current_user.tracks.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : current_user.tracks
 
-        albums = params[:addition_id] ? tracks.map(&:album).uniq : Album.all
-        artists = params[:addition_id] ? tracks.map(&:artist).uniq : Artist.all
+        albums = params[:addition_id] ? tracks.map(&:album).uniq : current_user.albums
+        artists = params[:addition_id] ? tracks.map(&:artist).uniq : current_user.artists
 
         # Delete all empty albums
         albums.each do |album|
@@ -97,12 +94,12 @@ class BackgroundController < ApplicationController
         # Or that have an album that has been deleted
         # (Artifact of merge)
         tracks.each do |track|
-            track.destroy unless Album.find_by(id: track.album_id)
-            track.destroy unless Artist.find_by(id: track.artist_id)
+            track.destroy unless current_user.albums.find_by(id: track.album_id)
+            track.destroy unless current_user.artists.find_by(id: track.artist_id)
         end
 
         albums.each do |album|
-            album.destroy unless Artist.find_by(id: album.artist_id)
+            album.destroy unless current_user.artists.find_by(id: album.artist_id)
         end
 
         render_success("Collection Cleaned")
@@ -113,7 +110,7 @@ class BackgroundController < ApplicationController
 
         added_tags = []
 
-        track = Track.find(track_id)
+        track = current_user.tracks.find(track_id)
         new_tag_names = ApiManager.get_track_tags(track.title, track.artist.title)
 
         new_tag_names = new_tag_names.map do |tag_name|
@@ -123,7 +120,11 @@ class BackgroundController < ApplicationController
             end
 
             unless track.tags.map(&:name).include? tag.name.downcase
-                track.tags << tag 
+                Tagging.create(
+                    tag_id: tag.id,
+                    user_id: current_user.id,
+                    track_id: track.id
+                )
                 added_tags << tag
                 track.save
             end
@@ -140,7 +141,7 @@ class BackgroundController < ApplicationController
     end
 
     def find_tags_for_artists_tracks
-        artist = Artist.find(params[:id])
+        artist = current_user.artists.find(params[:id])
         added_tags = artist.tracks.map do |track|
             find_tags(track_id: track.id)
         end.flatten
@@ -148,7 +149,7 @@ class BackgroundController < ApplicationController
     end
 
     def find_tags_for_albums_tracks
-        album = Album.find(params[:id])
+        album = current_user.albums.find(params[:id])
         added_tags = album.tracks.map do |track|
             find_tags(track_id: track.id)
         end.flatten
@@ -156,7 +157,7 @@ class BackgroundController < ApplicationController
     end
 
     def find_tags_for_every_track
-        tracks = params[:addition_id] ? Track.all.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : Track.all
+        tracks = params[:addition_id] ? current_user.tracks.select { |track| track.formattings.map(&:addition_id).include? params[:addition_id] } : current_user.tracks
 
         added_tags = tracks.map do |track|
             find_tags(track_id: track.id)
@@ -166,7 +167,7 @@ class BackgroundController < ApplicationController
     end
 
     def add_tags_to_album
-        album = Album.find(params[:id])
+        album = current_user.albums.find(params[:id])
         added_tags = album.tracks.map do |track|
             add_tag(track_id: track.id, tags: params[:tags])
         end.flatten
@@ -175,7 +176,7 @@ class BackgroundController < ApplicationController
     end
 
     def add_tags_to_artist
-        artist = Artist.find(params[:id])
+        artist = current_user.artists.find(params[:id])
         added_tags = artist.tracks.map do |track|
             add_tag(track_id: track.id, tags: params[:tags])
         end.flatten

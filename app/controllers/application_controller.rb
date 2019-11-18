@@ -8,8 +8,8 @@ class ApplicationController < ActionController::API
         render json: { errors: errors }, status: status
     end
 
-    def render_success(message, status = 200)
-        render json: { message: message }, status: status
+    def render_success(messages, status = 200)
+        render json: { messages: messages }, status: status
     end
 
     def render_entities(entities)
@@ -22,6 +22,7 @@ class ApplicationController < ActionController::API
 
     def save_and_render(entity)
         if entity.save
+            yield(entity) if block_given?
             render json: entity, status: 201
         else
             render_errors(entity.errors.full_messages)
@@ -41,4 +42,21 @@ class ApplicationController < ActionController::API
         render json: entity, status: 200
     end
 
+    def current_user
+        User.find_by(id: session[:user_id])
+    end
+
+    def group_entities(entities, column_name)
+        # returns:
+        # {
+        #   column_value1: [entity1, entity3],
+        #   column_value2: [entity2]
+        # }
+        entities.inject({}) do |acc, entity| 
+            acc[entity.send(column_name)] ||= []
+            acc[entity.send(column_name)] << entity
+            acc
+        end
+    end
+    
 end

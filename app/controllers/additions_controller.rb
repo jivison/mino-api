@@ -8,7 +8,7 @@ class AdditionsController < ApplicationController
 
     def create
         # params = { format, options (to be passed to the seed function) }
-        countBefore = {artist: Artist.all.count, album: Album.all.count, track: Track.all.count}
+        countBefore = {artist: current_user.artists.count, album: current_user.albums.count, track: current_user.tracks.count}
 
         options = JSON.parse(params[:options], symbolize_names: true)
 
@@ -16,31 +16,31 @@ class AdditionsController < ApplicationController
           case params[:format]
             
           when "spotify"
-            SeedManager.seed_from_spotify options[:playlistId]
+            SeedManager.seed_from_spotify(options[:playlistId], current_user)
       
           when "youtube"
-            SeedManager.seed_from_youtube options[:playlistId]
+            SeedManager.seed_from_youtube(options[:playlistId], current_user)
     
           when "vinyl"
-            SeedManager.seed_from_vinyl options
+            SeedManager.seed_from_vinyl(options, current_user)
       
           end
-        rescue ArgumentError
-          render json: { errors: "Invalid input!" }, status: 400
-          Addition.last.destroy()
+        rescue ArgumentError => e
+          current_user.additions.last&.destroy()
+          render_errors("Invalid input!", 400)
         rescue Exception => e
-          render json: { error: e }, status: 500
+          render_errors(e, 500)
         else
-          trackCount = Track.all.count - countBefore[:track]
-          albumCount = Album.all.count - countBefore[:album]
-          artistCount = Artist.all.count - countBefore[:artist]
+          trackCount = current_user.tracks.count - countBefore[:track]
+          albumCount = current_user.albums.count - countBefore[:album]
+          artistCount = current_user.artists.count - countBefore[:artist]
     
-          render json: { messages: "Added #{pluralize(trackCount, 'track')}, #{pluralize(albumCount, 'album')}, and #{pluralize(artistCount, 'artist')}" }, status: 200
+          render_success "Added #{pluralize(trackCount, 'track')}, #{pluralize(albumCount, 'album')}, and #{pluralize(artistCount, 'artist')}"
         end
     end
 
     def index
-        render_entities(Addition.all.reverse)
+        render_entities(current_user.additions.reverse)
     end
 
     def show
@@ -48,13 +48,13 @@ class AdditionsController < ApplicationController
     end
 
     def destroy
-        @addition.destroy_associated_tracks
+        @addition.destroy_associated_tracks(current_user)
         destroy_and_render(@addition)
     end
 
     private
     def find_addition
-        @addition = Addition.find(params[:id])
+        @addition = current_user.additions.find(params[:id])
     end
 
 end

@@ -8,11 +8,11 @@ class InsightsController < ApplicationController
         end
     
         @insight_data = {
-          artists: Artist.all,
-          albums: Album.all,
-          tracks: Track.all,
-        additions: Addition.where("addition_type != ?", "unassociated_add"),
-          maps: [*AlbumMap.all.to_a, *ArtistMap.all.to_a],
+          artists: current_user.artists,
+          albums: current_user.albums,
+          tracks: current_user.tracks,
+        additions: current_user.additions.where("addition_type != ?", "unassociated_add"),
+          maps: [*current_user.album_maps.to_a, *current_user.artist_maps.to_a],
           tags: @taggings
         }
     

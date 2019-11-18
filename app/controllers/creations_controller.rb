@@ -7,7 +7,7 @@ class CreationsController < ApplicationController
 
         collection_csv = [headers.dup()]
 
-        collection_csv.concat(Track.all.sort_by{ |track| [track.artist.sort_title, track.album.sort_title] }.map do |track|
+        collection_csv.concat(current_user.tracks.sort_by{ |track| [track.artist.sort_title, track.album.sort_title] }.map do |track|
             headers.inject([]) do |acc, val|
 
                 if val.to_s.ends_with?("_ids")
@@ -48,7 +48,7 @@ class CreationsController < ApplicationController
 
             playlist_id = new_playlist["id"]
 
-            uris, lost, found = ApiManager.spotify.getUris Track.all.sort_by{ |track| [track.artist.sort_title, track.album.sort_title] }
+            uris, lost, found = ApiManager.spotify.getUris current_user.tracks.sort_by{ |track| [track.artist.sort_title, track.album.sort_title] }
 
             responses = []
 
@@ -59,7 +59,7 @@ class CreationsController < ApplicationController
             end
 
             lost = lost.map do |id|
-                track = Track.find(id)
+                track = current_user.tracks.find(id)
                 track.attributes.to_options.merge({
                     sort_title: track.sort_title,
                     album: {
@@ -72,7 +72,7 @@ class CreationsController < ApplicationController
             end.sort_by { |track| track[:sort_title] }
 
             found = found.map do |id|
-                track = Track.find(id)
+                track = current_user.tracks.find(id)
                 track.attributes.to_options.merge({
                     sort_title: track.sort_title,
                     album: {

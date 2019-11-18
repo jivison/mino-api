@@ -11,13 +11,21 @@ require_relative "../lib/seed_manager"
 
 Artist.destroy_all
 Addition.destroy_all
+User.destroy_all
+
+user = User.create(
+    username: "john",
+    email: "john@ivison.org",
+    password: "password"
+)
+
+# session[:user_id] = user.id
+
+# SeedManager.seed_from_youtube("PLAV1qP_iCfWmv8rq9JVj_I0BZtqDJdmZo")
+# SeedManager.seed_from_spotify("4CalfhTMITrzxqrgtIVMcv")
+# SeedManager.seed_from_vinyl({artist: "AC/DC", album: "Powerage"})
 
 
-SeedManager.seed_from_youtube("PLAV1qP_iCfWmv8rq9JVj_I0BZtqDJdmZo")
-SeedManager.seed_from_spotify("4CalfhTMITrzxqrgtIVMcv")
-SeedManager.seed_from_vinyl({artist: "AC/DC", album: "Powerage"})
-
-
-puts "Generated #{Track.count} tracks"
-puts "Generated #{Album.count} albums"
-puts "Generated #{Artist.count} artists"
+# puts "Generated #{Track.count} tracks"
+# puts "Generated #{Album.count} albums"
+# puts "Generated #{Artist.count} artists"

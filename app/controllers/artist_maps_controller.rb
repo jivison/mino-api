@@ -2,19 +2,20 @@ class ArtistMapsController < ApplicationController
     before_action :find_artist_map, only: :destroy
 
     def index
-        artist_map_hash = ArtistMap.group_by(:artist_name)
-        render json: {maps: artist_map_hash, sort_titles: Artist.all.inject({}) { |acc, artist|
+        artist_map_hash = group_entities(current_user.artist_maps, :artist_name)
+        render json: {maps: artist_map_hash, sort_titles: current_user.artists.all.inject({}) { |acc, artist|
             acc[artist.title] = artist.sort_title
             acc 
         }}, status: 200
     end
 
     def show
-        render_entities(ArtistMap.where(artist_id: params[:artist_id]))
+        render_entities(current_user.artist_maps.where(artist_id: params[:artist_id]))
     end
     
     def create
         artist_map = ArtistMap.new artist_map_params
+        artist_map.user = current_user
         save_and_render(artist_map)
     end
 
@@ -24,7 +25,7 @@ class ArtistMapsController < ApplicationController
 
     private
     def find_artist_map
-        @artist_map = ArtistMap.find(params[:id])
+        @artist_map = current_user.artist_maps.find(params[:id])
     end
 
     def artist_map_params
