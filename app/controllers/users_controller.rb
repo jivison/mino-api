@@ -1,9 +1,13 @@
 class UsersController < ApplicationController
 
     def create    
-        user = User.new user_params
-        save_and_render(user) do |saved_user|
-            session[:user_id] = saved_user.id
+        if params[:password] == params[:password_confirmation]
+            user = User.new user_params
+            save_and_render(user) do |saved_user|
+                session[:user_id] = saved_user.id
+            end
+        else
+            render_errors(["Passwords do not match"])
         end
     end
 
