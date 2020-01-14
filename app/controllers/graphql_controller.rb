@@ -8,16 +8,12 @@ class GraphqlController < ApplicationController
     variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
-
-    if !current_user
-      render json: {"errors": "You must be signed in to use the API"}
-    else
-      context = {
-        current_user: current_user,
-      }
-      result = MinoApiSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
-      render json: result
-    end
+    context = {
+      current_user: current_user,
+      session: session
+    }
+    result = MinoApiSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
+    render json: result
   rescue => e
     raise e unless Rails.env.development?
     handle_error_in_development e

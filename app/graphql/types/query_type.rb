@@ -3,16 +3,6 @@ module Types
     # Add root-level fields here.
     # They will be entry points for queries on your schema.
 
-    # Not sure how to handle this in graphql yet
-    # field :signin, Types:UserType, null: false do
-    #   description "Signs the user in, returns that user"
-    #   argument :username, String, required: true
-    #   argument :password, String, required: true
-    # end
-
-    # def signin(username:, password:)      
-    # end
-
     field :artists, [Types::ArtistType], null: false do
         description "Returns a users artists"
         argument :limit, Integer, required: false
